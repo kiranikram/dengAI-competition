@@ -11,6 +11,10 @@ plt.style.use("ggplot")
 rcParams['figure.figsize'] = (12, 6)
 
 train_features = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengue_features_train.csv")
+train_2 = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengue_features_train.csv", index_col=[0,1,2])
+train_labels = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengue_labels_train.csv")
+
+test_df = pd.read_csv("")
 
 print(train_features.info())
 print(train_features.isna().sum())
