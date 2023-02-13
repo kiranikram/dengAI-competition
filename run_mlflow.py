@@ -21,11 +21,29 @@ import logging
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 
+ch = {'abc':[11],
+'fdfd':[22]}
+a_df = pd.DataFrame(ch)
+model_type = 'yolo'
+with open(f"/Users/ikram/Desktop/dengAI-competition/results/baseines-{model_type}.csv", "w") as f:
+        a_df.to_csv(f)
 
-def eval_metrics(actual, pred):
+
+def eval_metrics(actual, pred, model_type):
     rmse = np.sqrt(mean_squared_error(actual, pred))
     mae = mean_absolute_error(actual, pred)
     r2 = r2_score(actual, pred)
+    results = {'model_type':model_type,
+    'rmse':rmse,
+    'mae':mae,
+    'r2':r2}
+
+    results_df = pd.DataFrame(results)
+
+    with open(f"/Users/ikram/Desktop/dengAI-competition/results/baselines-{model_type}.csv", "w") as f:
+        results_df.to_csv(f)
+
+    
     return rmse, mae, r2
 
 
@@ -34,15 +52,7 @@ if __name__ == "__main__":
     np.random.seed(40)
 
     # Read the wine-quality csv file from the URL
-    csv_url = (
-        "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/data/winequality-red.csv"
-    )
-    try:
-        data = pd.read_csv(csv_url, sep=";")
-    except Exception as e:
-        logger.exception(
-            "Unable to download training & test CSV, check your internet connection. Error: %s", e
-        )
+    sj_trainzz
 
     # Split the data into training and test sets. (0.75, 0.25) split.
     train, test = train_test_split(data)

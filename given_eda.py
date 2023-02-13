@@ -5,7 +5,7 @@ path_to_labels = "/Users/ikram/Desktop/dengAI-competition/data/dengue_labels_tra
 
 def get_train_dfs():
     sj_train , iq_train = preprocess_data(path_to_features, labels_path = path_to_labels)
-    return sj_train , iq_traain
+    return sj_train , iq_train
 
 
 
