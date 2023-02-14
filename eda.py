@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import plotly.express as px
 
 # data viz
 import matplotlib.pyplot as plt
@@ -14,7 +15,16 @@ train_features = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengu
 train_2 = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengue_features_train.csv", index_col=[0,1,2])
 train_labels = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengue_labels_train.csv")
 
-test_df = pd.read_csv("")
+test_df = pd.read_csv("/Users/ikram/Desktop/dengAI-competition/data/dengue_features_test.csv")
+pt_test = test_df[['week_start_date','ndvi_ne','ndvi_nw']]
+pt_test['week_start_date']=pd.to_datetime(pt_test['week_start_date'])
+fig = px.line(pt_test, x=pt_test['week_start_date'], y=pt_test['ndvi_ne'])
+
+# Add Scatter plot
+fig.add_scatter(x=pt_test['week_start_date'], y=pt_test['ndvi_nw'])
+
+# Display the plot
+fig.show()
 
 print(train_features.info())
 print(train_features.isna().sum())
@@ -47,7 +57,7 @@ plt.show()
 
 for col in num_cols:
     print(col)
-    print('Skew :', round(df_sj[col].skew(), 2))
+    print('Skew :', round(sj[col].skew(), 2))
     plt.figure(figsize = (15, 4))
     plt.subplot(1, 2, 1)
     df_sj[col].hist(grid=False)
