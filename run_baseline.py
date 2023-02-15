@@ -81,7 +81,7 @@ def plotGraph(y_test,y_pred,regressorName):
         my_range = int(max(y_test))
     else:
         my_range = int(max(y_pred))
-    plt.scatter(xdata, ydata)(range(len(y_test)), y_test, color='blue')
+    plt.scatter(y_test, y_pred)(range(len(y_test)), y_test, color='blue')
     plt.scatter(range(len(y_pred)), y_pred, color='red')
     plt.title(regressorName)
     plt.show()

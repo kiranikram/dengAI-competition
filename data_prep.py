@@ -1,7 +1,7 @@
 import pandas as pd
 
-path_to_features = "/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/dengue_features_train.csv"
-path_to_labels = "/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/dengue_labels_train.csv"
+path_to_features = "../dengue_features_train.csv"
+path_to_labels = "../data2/dengue_labels_train.csv"
 
 def get_train_dfs():
     train_df = preprocess_data(path_to_features, labels_path = path_to_labels)
@@ -40,13 +40,7 @@ def split_data_by_city(df):
 
     return sj , iq
 
-def add_4_rolling_means(df):
 
-    df2 = df.rolling(window=4).mean()
-    df2 = df2.rename(columns={x: x + '_4' for x in df2.columns})
-    df_all = pd.merge(df,df2, how='left',on=['year','weekofyear'])
-
-    return df_all
 
 
 

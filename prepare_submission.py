@@ -1,12 +1,11 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
 from sklearn.svm import SVR
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import train_test_split
+
 from functools import partial, reduce
+from feature_eng import add_4_rolling_means, add_8_rolling_means , add_previous_max
 
 def split_data_by_city(df):
     sj = df.loc['sj']
@@ -14,15 +13,17 @@ def split_data_by_city(df):
 
     return sj , iq
 
-test_data = pd.read_csv("/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/dengue_features_test.csv",index_col=[0, 1, 2])
+test_data = pd.read_csv("../data2/dengue_features_test.csv",index_col=[0, 1, 2])
 test_data = test_data[['reanalysis_relative_humidity_percent','station_avg_temp_c','station_min_temp_c','reanalysis_specific_humidity_g_per_kg','reanalysis_dew_point_temp_k']]
+test_data.fillna(method='ffill', inplace=True)
 
 #retrain model on all training data 
 
-train_features = pd.read_csv("/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/dengue_features_train.csv",index_col=[0, 1, 2])
+train_features = pd.read_csv("../data2/dengue_features_train.csv",index_col=[0, 1, 2])
 train_features = train_features[['reanalysis_relative_humidity_percent','station_avg_temp_c','station_min_temp_c','reanalysis_specific_humidity_g_per_kg','reanalysis_dew_point_temp_k']]
+train_features.fillna(method='ffill', inplace=True)
 
-train_labels = pd.read_csv("/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/dengue_labels_train.csv",index_col=[0, 1, 2])
+train_labels = pd.read_csv("../data2/dengue_labels_train.csv",index_col=[0, 1, 2])
 
 sj_train , iq_train = split_data_by_city(train_features)
 sj_label , iq_label = split_data_by_city(train_labels)
@@ -58,7 +59,7 @@ avg_8 = add_8_rolling_means(train_features)
 _max = add_previous_max(train_features)
 
 dfs = [train_features, avg_4, avg_8,_max]
-merge = partial(pd.merge, on=['year','weekofyear'], how='outer')
+merge = partial(pd.merge, on=['city','year','weekofyear'], how='outer')
 lagged_df = reduce(merge, dfs)
 df_labels = lagged_df.total_cases
 lagged_df = lagged_df.loc[:, lagged_df.columns != "total_cases"]
@@ -82,6 +83,7 @@ dfs = [sj_test, avg_4, avg_8,_max]
 merge = partial(pd.merge, on=['year','weekofyear'], how='outer')
 test_sj = reduce(merge, dfs)
 test_sj = test_sj.loc[:, test_sj.columns != "total_cases"]
+test_sj = test_sj.fillna(method='bfill')
 
 #IQ dataset
 
@@ -93,20 +95,23 @@ dfs = [iq_test, avg_4, avg_8,_max]
 merge = partial(pd.merge, on=['year','weekofyear'], how='outer')
 test_iq = reduce(merge, dfs)
 test_iq = test_iq.loc[:, test_iq.columns != "total_cases"]
+test_iq = test_iq.fillna(method='bfill')
 
 retrain_model_sj = SVR()
 retrain_model_iq = SVR()
 
 retrain_model_sj.fit(sj_lagged, sj_labels )
-retrain_model_sj.fit(sj_lagged, sj_labels )
+retrain_model_iq.fit(iq_lagged, iq_labels )
 
 
 sj_predictions_final = retrain_model_sj.predict(test_sj)
 iq_predictions_final = retrain_model_iq.predict(test_iq)
 
 #concat sj and iq predictions
-all_predictions = sj+iq
+all_predictions = np.concatenate((sj_predictions_final, iq_predictions_final))
 
 submission = pd.read_csv("/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/submission_format.csv")
 
 submission["total_cases"] = all_predictions
+
+submission.to_csv("/Users/mussayababbasshamsi/Desktop/Kiran/dengAI-competition/data2/submission_final.csv",index=False)
